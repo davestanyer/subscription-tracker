@@ -21,19 +21,27 @@ export function XeroSettings() {
   });
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem("xeroSettings");
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
+    if (typeof window !== 'undefined') {
+      const savedSettings = localStorage.getItem("xeroSettings");
+      if (savedSettings) {
+        try {
+          setSettings(JSON.parse(savedSettings));
+        } catch (error) {
+          console.error('Failed to parse saved settings:', error);
+        }
+      }
     }
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("xeroSettings", JSON.stringify(settings));
-    toast({
-      title: "Settings saved",
-      description: "Your Xero integration settings have been saved successfully.",
-    });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("xeroSettings", JSON.stringify(settings));
+      toast({
+        title: "Settings saved",
+        description: "Your Xero integration settings have been saved successfully.",
+      });
+    }
   };
 
   return (
