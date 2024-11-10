@@ -3,11 +3,12 @@ import { SubscriptionList } from '@/components/subscriptions/list';
 import { SubscriptionCalendar } from '@/components/subscriptions/calendar';
 import { RemovalList } from '@/components/subscriptions/removal-list';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SubscriptionsProvider } from '@/context/subscriptions-context';
+
+export const dynamic = 'force-static';
 
 export default function Home() {
   return (
-    <SubscriptionsProvider>
+    <div className="container mx-auto">
       <div className="flex flex-col gap-8">
         <DashboardHeader />
         
@@ -25,6 +26,6 @@ export default function Home() {
           </TabsContent>
         </Tabs>
       </div>
-    </SubscriptionsProvider>
+    </div>
   );
 }
