@@ -3,20 +3,37 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+
+interface XeroSettings {
+  clientId: string;
+  clientSecret: string;
+  tenantId: string;
+}
 
 export function XeroSettings() {
-  const [settings, setSettings] = useState({
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<XeroSettings>({
     clientId: "",
     clientSecret: "",
     tenantId: "",
   });
 
+  useEffect(() => {
+    const savedSettings = localStorage.getItem("xeroSettings");
+    if (savedSettings) {
+      setSettings(JSON.parse(savedSettings));
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Save settings to local storage for now
     localStorage.setItem("xeroSettings", JSON.stringify(settings));
-    alert("Settings saved successfully!");
+    toast({
+      title: "Settings saved",
+      description: "Your Xero integration settings have been saved successfully.",
+    });
   };
 
   return (
