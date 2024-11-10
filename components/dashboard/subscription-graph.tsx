@@ -14,7 +14,7 @@ import {
   TooltipProps
 } from "recharts";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
@@ -24,7 +24,7 @@ interface BillingData {
   amount: number;
 }
 
-interface ChartData {
+interface ChartDataPoint {
   name: string;
   amount: number;
 }
@@ -51,26 +51,48 @@ export function SubscriptionGraph() {
     fetchBillingSchedule();
   }, []);
 
-  const chartData = data.map(item => ({
-    name: new Date(item.date).toLocaleDateString('default', { month: 'short' }),
-    amount: item.amount
-  }));
+  const chartData = useMemo<ChartDataPoint[]>(() => 
+    data.map(item => ({
+      name: new Date(item.date).toLocaleDateString('default', { month: 'short' }),
+      amount: item.amount
+    })), 
+    [data]
+  );
 
-  const maxAmount = Math.max(...chartData.map(item => item.amount), 0);
-  const yAxisMax = Math.ceil(maxAmount / 1000) * 1000;
+  const maxAmount = useMemo(() => 
+    Math.max(...chartData.map(item => item.amount), 0),
+    [chartData]
+  );
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
-    if (!active || !payload || !payload.length) return null;
-    
-    return (
-      <div className="bg-background border rounded-lg shadow-lg p-3">
-        <p className="font-medium">{label}</p>
-        <p className="text-sm">
-          {formatCurrency(payload[0].value as number, 'NZD')}
-        </p>
-      </div>
-    );
-  };
+  const yAxisMax = useMemo(() => 
+    Math.ceil(maxAmount / 1000) * 1000,
+    [maxAmount]
+  );
+
+  const CustomTooltip = useMemo(() => {
+    return function TooltipContent({ 
+      active, 
+      payload, 
+      label 
+    }: TooltipProps<ValueType, NameType>) {
+      if (!active || !payload || !payload.length) return null;
+      
+      return (
+        <div className="bg-background border rounded-lg shadow-lg p-3">
+          <p className="font-medium">{label}</p>
+          <p className="text-sm">
+            {formatCurrency(payload[0].value as number, 'NZD')}
+          </p>
+        </div>
+      );
+    };
+  }, []);
+
+  const chartTheme = useMemo(() => ({
+    gridColor: theme === "dark" ? "hsl(var(--muted-foreground))" : "#eee",
+    axisColor: theme === "dark" ? "hsl(var(--muted-foreground))" : "#888",
+    barColor: "hsl(var(--primary))"
+  }), [theme]);
 
   return (
     <Card className="p-6">
@@ -87,12 +109,12 @@ export function SubscriptionGraph() {
           >
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke={theme === "dark" ? "hsl(var(--muted-foreground))" : "#eee"}
+              stroke={chartTheme.gridColor}
               vertical={false}
             />
             <XAxis
               dataKey="name"
-              stroke={theme === "dark" ? "hsl(var(--muted-foreground))" : "#888"}
+              stroke={chartTheme.axisColor}
               fontSize={12}
             >
               <Label
@@ -100,15 +122,16 @@ export function SubscriptionGraph() {
                 position="bottom"
                 offset={15}
                 style={{
-                  fill: theme === "dark" ? "hsl(var(--muted-foreground))" : "#888",
+                  fill: chartTheme.axisColor,
                   fontSize: 12
                 }}
               />
             </XAxis>
             <YAxis
-              stroke={theme === "dark" ? "hsl(var(--muted-foreground))" : "#888"}
+              stroke={chartTheme.axisColor}
               fontSize={12}
               tickFormatter={(value) => formatCurrency(value, 'NZD')}
+              domain={[0, yAxisMax]}
             >
               <Label
                 value="Amount (NZD)"
@@ -116,7 +139,7 @@ export function SubscriptionGraph() {
                 position="left"
                 offset={-45}
                 style={{
-                  fill: theme === "dark" ? "hsl(var(--muted-foreground))" : "#888",
+                  fill: chartTheme.axisColor,
                   fontSize: 12
                 }}
               />
@@ -124,7 +147,7 @@ export function SubscriptionGraph() {
             <Tooltip content={CustomTooltip} />
             <Bar
               dataKey="amount"
-              fill="hsl(var(--primary))"
+              fill={chartTheme.barColor}
               radius={[4, 4, 0, 0]}
             />
           </BarChart>
