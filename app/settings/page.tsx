@@ -2,9 +2,11 @@ import { Card } from "@/components/ui/card";
 import { XeroSettings } from "@/components/settings/xero-settings";
 
 export const metadata = {
-  title: 'Settings - Subscription Manager',
+  title: 'Settings',
   description: 'Configure your subscription management settings',
 };
+
+export const dynamic = 'force-static';
 
 export default function SettingsPage() {
   return (
