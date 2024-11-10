@@ -43,12 +43,10 @@ export function DashboardHeader() {
     const rates = exchangeRates.filter(rate => rate.currency_code === currency);
     if (!rates.length) return null;
 
-    // Find the rate closest to but not after the given date
     const closestRate = rates.find(rate => rate.rate_date <= date);
     return closestRate?.exchange_rate || rates[0].exchange_rate;
   };
 
-  // Calculate total monthly cost in NZD
   const totalMonthly = subscriptions?.reduce((acc, sub) => {
     if (sub.flagged_for_removal) return acc;
     
@@ -60,7 +58,6 @@ export function DashboardHeader() {
            amountInNZD / 12);
   }, 0) || 0;
 
-  // Find the next upcoming billing date
   const nextBillingDate = subscriptions?.reduce((closest, sub) => {
     if (sub.flagged_for_removal) return closest;
     const nextDate = calculateNextBillingDate(sub.next_billing_date, sub.frequency);
@@ -74,7 +71,7 @@ export function DashboardHeader() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Subscriptions</h1>
-        <AddSubscriptionDialog onSubscriptionAdded={refresh} />
+        <AddSubscriptionDialog />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
