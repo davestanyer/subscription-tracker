@@ -8,7 +8,10 @@ import { Toaster } from '@/components/ui/toaster';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Subscription Manager',
+  title: {
+    template: '%s | Subscription Manager',
+    default: 'Subscription Manager',
+  },
   description: 'Manage your business subscriptions efficiently',
 };
 
