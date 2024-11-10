@@ -26,7 +26,11 @@ import { supabase } from "@/lib/supabase";
 const CURRENCIES = ['USD', 'NZD', 'AUD', 'EUR'] as const;
 type Currency = typeof CURRENCIES[number];
 
-export function AddSubscriptionDialog() {
+interface AddSubscriptionDialogProps {
+  onSubscriptionAdded?: () => void;
+}
+
+export function AddSubscriptionDialog({ onSubscriptionAdded }: AddSubscriptionDialogProps) {
   const { addSubscription, refresh } = useSubscriptions();
   const { data: clients } = useClients();
   const [users, setUsers] = useState<any[]>([]);
@@ -70,7 +74,6 @@ export function AddSubscriptionDialog() {
       logo_url,
     };
 
-    // Only include IDs if they're not null
     if (formData.client_id) {
       subscriptionData.client_id = formData.client_id;
     }
@@ -94,6 +97,7 @@ export function AddSubscriptionDialog() {
     });
     
     refresh();
+    onSubscriptionAdded?.();
   };
 
   return (
