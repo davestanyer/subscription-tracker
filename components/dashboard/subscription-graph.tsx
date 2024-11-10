@@ -10,15 +10,22 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  Label
+  Label,
+  TooltipProps
 } from "recharts";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
 interface BillingData {
   date: string;
   month_end: string;
+  amount: number;
+}
+
+interface ChartData {
+  name: string;
   amount: number;
 }
 
@@ -51,6 +58,19 @@ export function SubscriptionGraph() {
 
   const maxAmount = Math.max(...chartData.map(item => item.amount), 0);
   const yAxisMax = Math.ceil(maxAmount / 1000) * 1000;
+
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+    if (!active || !payload || !payload.length) return null;
+    
+    return (
+      <div className="bg-background border rounded-lg shadow-lg p-3">
+        <p className="font-medium">{label}</p>
+        <p className="text-sm">
+          {formatCurrency(payload[0].value as number, 'NZD')}
+        </p>
+      </div>
+    );
+  };
 
   return (
     <Card className="p-6">
@@ -101,19 +121,7 @@ export function SubscriptionGraph() {
                 }}
               />
             </YAxis>
-            <Tooltip
-              content={({ active, payload, label }) => {
-                if (!active || !payload?.length) return null;
-                return (
-                  <div className="bg-background border rounded-lg shadow-lg p-3">
-                    <p className="font-medium">{label}</p>
-                    <p className="text-sm">
-                      {formatCurrency(payload[0].value, 'NZD')}
-                    </p>
-                  </div>
-                );
-              }}
-            />
+            <Tooltip content={CustomTooltip} />
             <Bar
               dataKey="amount"
               fill="hsl(var(--primary))"
