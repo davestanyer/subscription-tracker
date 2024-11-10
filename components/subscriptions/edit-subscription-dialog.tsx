@@ -16,13 +16,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Subscription } from "@/types/subscription";
 import { useState, useEffect } from "react";
 import { useClients } from "@/hooks/use-clients";
 import { supabase } from "@/lib/supabase";
 
 const CURRENCIES = ['USD', 'NZD', 'AUD', 'EUR'] as const;
 type Currency = typeof CURRENCIES[number];
+
+interface Subscription {
+  id: string;
+  name: string;
+  amount: number;
+  currency: Currency;
+  frequency: 'monthly' | 'quarterly' | 'annually';
+  next_billing_date: string;
+  status: 'active' | 'cancelled' | 'pending';
+  website_url?: string;
+  logo_url?: string;
+  client_id?: string;
+  user_id?: string;
+  flagged_for_removal?: boolean;
+  removal_date?: string | null;
+}
+
+interface FormData extends Omit<Subscription, 'amount'> {
+  amount: string;
+}
 
 interface EditSubscriptionDialogProps {
   subscription: Subscription;
@@ -39,7 +58,7 @@ export function EditSubscriptionDialog({
 }: EditSubscriptionDialogProps) {
   const { data: clients } = useClients();
   const [users, setUsers] = useState<any[]>([]);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     ...subscription,
     amount: subscription.amount.toString(),
   });
@@ -72,13 +91,13 @@ export function EditSubscriptionDialog({
       }
     }
 
-    const updatedSubscription = {
+    const updatedSubscription: Subscription = {
       ...formData,
       amount: parseFloat(formData.amount),
       logo_url,
     };
 
-    await onSave(updatedSubscription as Subscription);
+    await onSave(updatedSubscription);
     onOpenChange(false);
   };
 
