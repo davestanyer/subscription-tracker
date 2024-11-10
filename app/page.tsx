@@ -4,6 +4,11 @@ import { SubscriptionCalendar } from '@/components/subscriptions/calendar';
 import { RemovalList } from '@/components/subscriptions/removal-list';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+export const metadata = {
+  title: 'Dashboard',
+  description: 'Manage your subscriptions efficiently',
+};
+
 export const dynamic = 'force-static';
 
 export default function Home() {
