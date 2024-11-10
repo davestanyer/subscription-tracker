@@ -61,24 +61,19 @@ export function SubscriptionList() {
     if (currency === 'NZD') return 1;
     
     const rates = exchangeRates.filter(rate => rate.currency_code === currency);
-    if (!rates.length) return 1; // Default to 1 if no rate found
+    if (!rates.length) return 1;
 
-    // Find the rate closest to but not after the given date
     const closestRate = rates.find(rate => rate.rate_date <= date);
     return closestRate?.exchange_rate || rates[0].exchange_rate;
   };
 
-  const calculateNZDAmount = (amount: number, currency: string, date: string) => {
-    const rate = getExchangeRate(currency, date);
-    return amount * rate;
-  };
-
-  const handleFlagForRemoval = (subscription: Subscription) => {
-    updateSubscription({
+  const handleFlagForRemoval = async (subscription: Subscription) => {
+    const update: Subscription = {
       ...subscription,
       flagged_for_removal: true,
       removal_date: new Date().toISOString(),
-    });
+    };
+    await updateSubscription(update);
   };
 
   const filteredSubscriptions = subscriptions?.filter(subscription => {
@@ -139,11 +134,7 @@ export function SubscriptionList() {
           </TableHeader>
           <TableBody>
             {filteredSubscriptions?.map((subscription) => {
-              const nzdAmount = calculateNZDAmount(
-                subscription.amount,
-                subscription.currency,
-                subscription.next_billing_date
-              );
+              const nzdAmount = subscription.amount * (getExchangeRate(subscription.currency, subscription.next_billing_date) || 1);
 
               return (
                 <TableRow 
