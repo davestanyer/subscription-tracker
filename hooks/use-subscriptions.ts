@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Database } from "@/types/supabase";
-
-type Subscription = Database['public']['Tables']['subscriptions']['Row'];
+import { Subscription, NewSubscription, SubscriptionUpdate } from "@/types/subscription";
 
 export function useSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -33,7 +31,7 @@ export function useSubscriptions() {
     }
   }
 
-  async function addSubscription(newSubscription: Omit<Subscription, 'id' | 'created_at' | 'updated_at'>) {
+  async function addSubscription(newSubscription: NewSubscription) {
     try {
       const { data, error } = await supabase
         .from('subscriptions')
@@ -50,7 +48,7 @@ export function useSubscriptions() {
     }
   }
 
-  async function updateSubscription(updatedSubscription: Subscription) {
+  async function updateSubscription(updatedSubscription: SubscriptionUpdate) {
     try {
       const { data, error } = await supabase
         .from('subscriptions')
