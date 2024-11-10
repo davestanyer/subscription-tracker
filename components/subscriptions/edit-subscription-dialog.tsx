@@ -19,35 +19,17 @@ import {
 import { useState, useEffect } from "react";
 import { useClients } from "@/hooks/use-clients";
 import { supabase } from "@/lib/supabase";
-
-const CURRENCIES = ['USD', 'NZD', 'AUD', 'EUR'] as const;
-type Currency = typeof CURRENCIES[number];
-
-interface Subscription {
-  id: string;
-  name: string;
-  amount: number;
-  currency: Currency;
-  frequency: 'monthly' | 'quarterly' | 'annually';
-  next_billing_date: string;
-  status: 'active' | 'cancelled' | 'pending';
-  website_url?: string;
-  logo_url?: string;
-  client_id?: string;
-  user_id?: string;
-  flagged_for_removal?: boolean;
-  removal_date?: string | null;
-}
-
-interface FormData extends Omit<Subscription, 'amount'> {
-  amount: string;
-}
+import { Subscription, Currency } from "@/types/subscription";
 
 interface EditSubscriptionDialogProps {
   subscription: Subscription;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (subscription: Subscription) => void;
+}
+
+interface FormData extends Omit<Subscription, 'amount' | 'client' | 'owner'> {
+  amount: string;
 }
 
 export function EditSubscriptionDialog({
@@ -159,7 +141,7 @@ export function EditSubscriptionDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CURRENCIES.map((currency) => (
+                  {['USD', 'NZD', 'AUD', 'EUR'].map((currency) => (
                     <SelectItem key={currency} value={currency}>
                       {currency}
                     </SelectItem>
