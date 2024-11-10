@@ -17,7 +17,11 @@ export function useSubscriptions() {
     try {
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('*')
+        .select(`
+          *,
+          client:clients(id, name),
+          owner:users(id, name, email)
+        `)
         .order('next_billing_date');
 
       if (error) throw error;
@@ -36,7 +40,11 @@ export function useSubscriptions() {
       const { data, error } = await supabase
         .from('subscriptions')
         .insert([newSubscription])
-        .select()
+        .select(`
+          *,
+          client:clients(id, name),
+          owner:users(id, name, email)
+        `)
         .single();
 
       if (error) throw error;
@@ -54,7 +62,11 @@ export function useSubscriptions() {
         .from('subscriptions')
         .update(updatedSubscription)
         .eq('id', updatedSubscription.id)
-        .select()
+        .select(`
+          *,
+          client:clients(id, name),
+          owner:users(id, name, email)
+        `)
         .single();
 
       if (error) throw error;
