@@ -18,7 +18,7 @@ interface UseClientsReturn {
   data: Client[] | null;
   isLoading: boolean;
   error: Error | null;
-  refresh: () => Promise<void>;
+  refresh: () => Promise<Client[] | undefined>;
   addClient: (client: NewClient) => Promise<Client>;
   updateClient: (client: ClientUpdate) => Promise<Client>;
   deleteClient: (id: string) => Promise<void>;
@@ -29,7 +29,7 @@ export function useClients(): UseClientsReturn {
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
     refreshInterval: 5000,
-    fallbackData: null // Explicitly set fallback to null
+    fallbackData: [] 
   });
 
   async function addClient(newClient: NewClient): Promise<Client> {
